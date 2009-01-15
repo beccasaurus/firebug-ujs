@@ -43,11 +43,13 @@ if ( FirebugUJS == null ) {
         if (event_function.the_function != null)
           event_function = event_function.the_function;
         
-        console.log('FirebugUJS: ' + event_type + ' event bound to element: ' + element);
+        // console.log('FirebugUJS: ' + event_type + ' event bound to element: ' + element);
 
-        // console.log('FirebugUJS: ' + event_type + ' event bound to element: ' );
-        // console.log( element );
-        // console.log('');
+        // because i don't currently have a way to show *all* of the events on the current 
+        // page, i'm logging each element (so you can hover over it in Firebug to see it)
+        console.log('FirebugUJS: ' + event_type + ' event bound to element: ' );
+        console.log( element );
+        console.log('');
 
         if ( element.getAttribute('ujs') == null )
           element.setAttribute('ujs', '');
