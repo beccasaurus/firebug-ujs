@@ -23,6 +23,15 @@
  */
 if ( FirebugUJS == null ) {
 
+  // sometimes this code gets executed by the browser before Firebug 
+  // has loaded the console object - there might be a way to fix this 
+  // but, for now, just define a mock console.log function
+  if (window.console == null) {
+    window.console = {
+      log: function(){ /* do nothing */ }
+    };
+  }
+
   console.log('FirebugUJS: loading client-side javascript');
 
   // global
@@ -33,8 +42,13 @@ if ( FirebugUJS == null ) {
       if ( element && event_type && event_function ) {
         if (event_function.the_function != null)
           event_function = event_function.the_function;
-        //console.log('event_bound_to_element: ' + element + ':' + event_type + ' => ' + event_function );
-        console.log('FirebugUJS: event_bound_to_element: ' + element + ':' + event_type );
+        
+        console.log('FirebugUJS: ' + event_type + ' event bound to element: ' + element);
+
+        // console.log('FirebugUJS: ' + event_type + ' event bound to element: ' );
+        // console.log( element );
+        // console.log('');
+
         if ( element.getAttribute('ujs') == null )
           element.setAttribute('ujs', '');
         element.setAttribute('ujs', element.getAttribute('ujs') + event_type + ':' + event_function + '|' );
@@ -51,9 +65,25 @@ if ( FirebugUJS == null ) {
 
     jQuery.fn.extend({
         bind: function( type, data, fn ) {
+          console.log('FirebugUJS:   [jQuery] ' + type + ' event bound to ' + this[0]);
           FirebugUJS.event_bound_to_element( this[0], type, data );
           return this.original_bind( type, data, fn );
         }
+      });
+  }
+
+  // Prototype
+
+  if ( window.Prototype ) {
+    console.log('FiregubUJS: loading Prototype module');
+
+    Event.observe_old = Event.observe;
+    Element.addMethods({
+        observe: function(element, eventName, handler) {
+          console.log('FirebugUJS:   [Prototype] ' + eventName + ' event bound to ' + element);
+          FirebugUJS.event_bound_to_element( element, eventName, handler );
+          Event.observe_old( element, eventName, handler );
+        }		  
       });
   }
 
@@ -73,28 +103,6 @@ if ( FirebugUJS == null ) {
       wrapped_observer.the_function = (observer.the_function == null) ? observer : observer.the_function;
       return wrapped_observer;
     }
-
-    Event.observe_old = Event.observe;
-    Element.addMethods({
-        observe: function(element, eventName, handler) {
-          FirebugUJS.event_bound_to_element( element, eventName, handler );
-          Event.observe_old( element, eventName, handler );
-        }		  
-      });
-  }
-
-  // Prototype
-
-  if ( window.Prototype ) {
-    console.log('FiregubUJS: loading Prototype module');
-
-    Event.observe_old = Event.observe;
-    Element.addMethods({
-        observe: function(element, eventName, handler) {
-          FirebugUJS.event_bound_to_element( element, eventName, handler );
-          Event.observe_old( element, eventName, handler );
-        }		  
-      });
   }
 
 }
